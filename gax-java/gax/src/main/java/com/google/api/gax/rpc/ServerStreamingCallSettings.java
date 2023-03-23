@@ -251,9 +251,10 @@ public final class ServerStreamingCallSettings<RequestT, ResponseT>
               .setInitialRetryDelay(Duration.ZERO)
               .setRetryDelayMultiplier(1)
               .setMaxRetryDelay(Duration.ZERO)
-              .setInitialRpcTimeout(timeout)
+              .setInitialRpcTimeout(Duration.ZERO)
               .setRpcTimeoutMultiplier(1)
-              .setMaxRpcTimeout(timeout)
+              .setMaxRpcTimeout(Duration.ZERO)
+              .setStreamRpcTimeout(timeout)
               .setMaxAttempts(1)
               .build());
 

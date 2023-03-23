@@ -33,6 +33,7 @@ import com.google.api.core.BetaApi;
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.Serializable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.threeten.bp.Duration;
 
 /**
@@ -65,7 +66,8 @@ import org.threeten.bp.Duration;
  *
  * <p>Server streaming RPCs interpret RPC timeouts a bit differently. For server streaming RPCs, the
  * RPC timeout gets converted into a wait timeout {@link
- * com.google.api.gax.rpc.ApiCallContext#withStreamWaitTimeout(Duration)}.
+ * com.google.api.gax.rpc.ApiCallContext#withStreamWaitTimeout(Duration)}. Stream RPC timeout is set
+ * with {@link }
  */
 @AutoValue
 public abstract class RetrySettings implements Serializable {
@@ -142,6 +144,9 @@ public abstract class RetrySettings implements Serializable {
    */
   public abstract Duration getMaxRpcTimeout();
 
+  /** Sets the rpc timeout for a streaming request. The default value is {@code Duration.ZERO}. */
+  public abstract @Nullable Duration getStreamRpcTimeout();
+
   public static Builder newBuilder() {
     return new AutoValue_RetrySettings.Builder()
         .setTotalTimeout(Duration.ZERO)
@@ -152,7 +157,8 @@ public abstract class RetrySettings implements Serializable {
         .setJittered(true)
         .setInitialRpcTimeout(Duration.ZERO)
         .setRpcTimeoutMultiplier(1.0)
-        .setMaxRpcTimeout(Duration.ZERO);
+        .setMaxRpcTimeout(Duration.ZERO)
+        .setStreamRpcTimeout(Duration.ZERO);
   }
 
   public abstract Builder toBuilder();
@@ -233,6 +239,9 @@ public abstract class RetrySettings implements Serializable {
      */
     public abstract Builder setMaxRpcTimeout(Duration maxTimeout);
 
+    /** Sets the rpc timeout for a streaming request. The default value is {@code Duration.ZERO}. */
+    public abstract Builder setStreamRpcTimeout(Duration rpcTimeout);
+
     /**
      * TotalTimeout has ultimate control over how long the logic should keep trying the remote call
      * until it gives up completely. The higher the total timeout, the more retries can be
@@ -297,6 +306,9 @@ public abstract class RetrySettings implements Serializable {
      */
     public abstract Duration getMaxRpcTimeout();
 
+    /** Gets the rpc timeout for a streaming request. The default value is {@code Duration.ZERO}. */
+    public abstract Duration getStreamRpcTimeout();
+
     /**
      * Configures the timeout settings with the given timeout such that the logical call will take
      * no longer than the given timeout and each RPC attempt will use only the time remaining in the
@@ -342,6 +354,9 @@ public abstract class RetrySettings implements Serializable {
       if (params.getRpcTimeoutMultiplier() < 1.0) {
         throw new IllegalStateException("rpc timeout multiplier must be at least 1");
       }
+      if (params.getStreamRpcTimeout() != null && params.getStreamRpcTimeout().toMillis() < 0) {
+        throw new IllegalStateException("stream rpc timeout must not be negative");
+      }
       return params;
     }
 
@@ -368,6 +383,9 @@ public abstract class RetrySettings implements Serializable {
       }
       if (newSettings.getMaxRpcTimeout() != null) {
         setMaxRpcTimeout(newSettings.getMaxRpcTimeout());
+      }
+      if (newSettings.getStreamRpcTimeout() != null) {
+        setStreamRpcTimeout(newSettings.getStreamRpcTimeout());
       }
       return this;
     }

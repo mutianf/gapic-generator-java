@@ -31,6 +31,7 @@ package com.google.api.gax.retrying;
 
 import com.google.api.core.ApiClock;
 import com.google.auto.value.AutoValue;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.threeten.bp.Duration;
 
 /** Timed attempt execution settings. Defines time-specific properties of a retry attempt. */
@@ -48,6 +49,9 @@ public abstract class TimedAttemptSettings {
 
   /** Returns rpc timeout used for this attempt. */
   public abstract Duration getRpcTimeout();
+
+  /** Returns rpc timeout used for this attempt for streaming calls. */
+  public abstract @Nullable Duration getStreamRpcTimeout();
 
   /**
    * Returns randomized attempt delay. By default this value is calculated based on the {@code
@@ -93,6 +97,9 @@ public abstract class TimedAttemptSettings {
 
     /** Sets rpc timeout used for this attempt. */
     public abstract Builder setRpcTimeout(Duration value);
+
+    /** Sets rpc timeout used for this attempt for streaming calls. */
+    public abstract Builder setStreamRpcTimeout(Duration value);
 
     /**
      * Sets randomized attempt delay. By default this value is calculated based on the {@code

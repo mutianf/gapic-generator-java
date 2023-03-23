@@ -62,6 +62,7 @@ public class CallableTest {
           .setInitialRpcTimeout(Duration.ofMillis(5L))
           .setMaxRpcTimeout(Duration.ofMillis(5L))
           .setTotalTimeout(Duration.ofMillis(10L))
+          .setStreamRpcTimeout(Duration.ofMillis(10L))
           .build();
 
   @Spy private ApiCallContext callContext = FakeCallContext.createDefault();
@@ -137,7 +138,7 @@ public class CallableTest {
     ServerStreamingCallable<Object, Object> callable =
         Callables.retrying(innerServerStreamingCallable, callSettings, clientContext);
 
-    Duration timeout = retrySettings.getInitialRpcTimeout();
+    Duration timeout = retrySettings.getStreamRpcTimeout();
 
     callable.call("Is your refrigerator running?", callContextWithRetrySettings);
 
