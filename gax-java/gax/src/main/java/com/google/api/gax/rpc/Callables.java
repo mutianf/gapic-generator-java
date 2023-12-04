@@ -67,10 +67,18 @@ public class Callables {
               .build();
     }
 
-    RetryAlgorithm<ResponseT> retryAlgorithm =
-        new RetryAlgorithm<>(
-            new ApiResultRetryAlgorithm<ResponseT>(),
-            new ExponentialRetryAlgorithm(settings.getRetrySettings(), clientContext.getClock()));
+    RetryAlgorithm<ResponseT> retryAlgorithm;
+    if (settings.getRetrySettings().getUseServerRetryDelay()) {
+      retryAlgorithm =
+          new RetryAlgorithm<>(
+              new ServerResultRetryAlgorithm<ResponseT>(),
+              new ExponentialRetryAlgorithm(settings.getRetrySettings(), clientContext.getClock()));
+    } else {
+      retryAlgorithm =
+          new RetryAlgorithm<>(
+              new ApiResultRetryAlgorithm<ResponseT>(),
+              new ExponentialRetryAlgorithm(settings.getRetrySettings(), clientContext.getClock()));
+    }
     ScheduledRetryingExecutor<ResponseT> retryingExecutor =
         new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
     return new RetryingCallable<>(
@@ -92,10 +100,18 @@ public class Callables {
               .build();
     }
 
-    StreamingRetryAlgorithm<Void> retryAlgorithm =
-        new StreamingRetryAlgorithm<>(
-            new ApiResultRetryAlgorithm<Void>(),
-            new ExponentialRetryAlgorithm(settings.getRetrySettings(), clientContext.getClock()));
+    StreamingRetryAlgorithm<Void> retryAlgorithm;
+    if (settings.getRetrySettings().getUseServerRetryDelay()) {
+      retryAlgorithm =
+          new StreamingRetryAlgorithm<>(
+              new ServerResultRetryAlgorithm<>(),
+              new ExponentialRetryAlgorithm(settings.getRetrySettings(), clientContext.getClock()));
+    } else {
+      retryAlgorithm =
+          new StreamingRetryAlgorithm<>(
+              new ApiResultRetryAlgorithm<Void>(),
+              new ExponentialRetryAlgorithm(settings.getRetrySettings(), clientContext.getClock()));
+    }
 
     ScheduledRetryingExecutor<Void> retryingExecutor =
         new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());

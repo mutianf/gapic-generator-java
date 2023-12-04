@@ -181,6 +181,9 @@ public abstract class RetrySettings implements Serializable {
    */
   public abstract Duration getMaxRpcTimeout();
 
+  /** Gets if retry algorithm should use server retry delay. */
+  public abstract boolean getUseServerRetryDelay();
+
   public static Builder newBuilder() {
     return new AutoValue_RetrySettings.Builder()
         .setTotalTimeout(Duration.ZERO)
@@ -191,7 +194,8 @@ public abstract class RetrySettings implements Serializable {
         .setJittered(true)
         .setInitialRpcTimeout(Duration.ZERO)
         .setRpcTimeoutMultiplier(1.0)
-        .setMaxRpcTimeout(Duration.ZERO);
+        .setMaxRpcTimeout(Duration.ZERO)
+        .setUseServerRetryDelay(false);
   }
 
   public abstract Builder toBuilder();
@@ -306,6 +310,9 @@ public abstract class RetrySettings implements Serializable {
      */
     public abstract Builder setMaxRpcTimeout(Duration maxTimeout);
 
+    /** Use retry info send back by the server. */
+    public abstract Builder setUseServerRetryDelay(boolean useServerRetryDelay);
+
     /**
      * TotalTimeout has ultimate control over how long the logic should keep trying the remote call
      * until it gives up completely. The higher the total timeout, the more retries and polls can be
@@ -405,6 +412,8 @@ public abstract class RetrySettings implements Serializable {
      */
     public abstract Duration getMaxRpcTimeout();
 
+    public abstract boolean getUseServerRetryDelay();
+
     /**
      * Configures the timeout settings with the given timeout such that the logical call will take
      * no longer than the given timeout and each RPC attempt will use only the time remaining in the
@@ -477,6 +486,7 @@ public abstract class RetrySettings implements Serializable {
       if (newSettings.getMaxRpcTimeout() != null) {
         setMaxRpcTimeout(newSettings.getMaxRpcTimeout());
       }
+      setUseServerRetryDelay(newSettings.getUseServerRetryDelay());
       return this;
     }
   }
